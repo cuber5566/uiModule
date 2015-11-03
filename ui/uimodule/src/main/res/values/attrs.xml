@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- SquareLayout -->
+    <declare-styleable name="SquareLayout">
+        <attr name="widthWeight" format="float" />
+        <attr name="heightWeight" format="float" />
+    </declare-styleable>
+
+</resources>
