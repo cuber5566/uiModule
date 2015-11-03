@@ -3,8 +3,16 @@
 
     <!-- SquareLayout -->
     <declare-styleable name="SquareLayout">
-        <attr name="widthWeight" format="float" />
-        <attr name="heightWeight" format="float" />
+        <attr name="widthWeight" format="float"/>
+        <attr name="heightWeight" format="float"/>
+    </declare-styleable>
+
+    <!-- Raised Button -->
+    <declare-styleable name="RaisedButton">
+        <attr name="rb_backgroundColor" format="color"/>
+        <attr name="rb_rippleColor" format="color"/>
+        <attr name="rb_enableBackgroundColor" format="color"/>
+        <attr name="rb_enableTextColor" format="color"/>
     </declare-styleable>
 
 </resources>

@@ -14,6 +14,37 @@
     <com.ui.uimodule.SquareLinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#ff0000"/>
+        android:background="#ff0000"
+        app:widthWeight="3"
+        app:heightWeight="4">
+
+        <com.ui.uimodule.RaisedButton
+            android:id="@+id/raisedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="RaisedButton"
+            app:rb_backgroundColor="@color/colorAccent"
+            app:rb_rippleColor="#FFFFFF"/>
+
+        <com.ui.uimodule.RaisedButton
+            android:id="@+id/enable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="enable"
+            app:rb_backgroundColor="@color/colorAccent"
+            app:rb_rippleColor="#FFFFFF"/>
+
+        <com.ui.uimodule.RaisedButton
+            android:id="@+id/animationEnable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="animationEnable"
+            app:rb_backgroundColor="@color/colorAccent"
+            app:rb_rippleColor="#FFFFFF"/>
+
+    </com.ui.uimodule.SquareLinearLayout>
 
 </RelativeLayout>
