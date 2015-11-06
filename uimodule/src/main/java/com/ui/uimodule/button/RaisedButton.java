@@ -19,7 +19,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 
 import com.ui.uimodule.R;
-import com.ui.uimodule.ShadowMaker;
 import com.ui.uimodule.ShadowPrinter;
 
 public class RaisedButton extends Button {
@@ -36,36 +35,30 @@ public class RaisedButton extends Button {
     int shadowColor = Color.BLACK;
     float shadowRadius = 2 * Resources.getSystem().getDisplayMetrics().density;
     float shadowOffsetX = 0 * Resources.getSystem().getDisplayMetrics().density;
-    float shadowOffsetY = 1 * Resources.getSystem().getDisplayMetrics().density;
+    float shadowOffsetY = 0 * Resources.getSystem().getDisplayMetrics().density;
 
     float rippleRadius = 48 * Resources.getSystem().getDisplayMetrics().density;
     float cur_radius;
     float max_radius;
 
-    float shadowStoke = 3 * Resources.getSystem().getDisplayMetrics().density;
-    float rectRadius = 16 * Resources.getSystem().getDisplayMetrics().density;
+    float padding = 4 * Resources.getSystem().getDisplayMetrics().density;
+    float elevation = 4 * Resources.getSystem().getDisplayMetrics().density;
+    float rectRadius = 2 * Resources.getSystem().getDisplayMetrics().density;
     float shadowAlpha = 0.3f;
 
     protected int backgroundColor, rippleColor, enableTextColor, enableBackgroundColor;
     private ValueAnimator enableTextColorAnimator, enableBackgroundColorAnimator, enableShadowAnimator, backgroundColorAnimator, rippleColorAnimator, rippleRadiusAnimator, rippleFocusAnimator;
-    int textColor;
 
     Paint ripplePaint, backgroundPaint;
+    Path clipPath = new Path();
+    RectF clipRect = new RectF(), rectF = new RectF();
+    ShadowPrinter shadowPrinter;
 
     float x, y;
+    int textColor;
     int height, width;
-
-    RectF rectF;
-    float padding = 8 * Resources.getSystem().getDisplayMetrics().density;
-
     boolean isClicked = false;
-
-    ShadowMaker shadowMaker;
-    ShadowPrinter shadowPrinter;
     boolean focus;
-
-    Path clipPath = new Path();
-    RectF clipRect = new RectF();
 
     public RaisedButton(Context context) {
         this(context, null);
@@ -78,14 +71,11 @@ public class RaisedButton extends Button {
     public RaisedButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        rectF = new RectF();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
         setAttributes(context, attrs);
         setPaint();
-        shadowMaker = new ShadowMaker(this, rectRadius);
         shadowPrinter = new ShadowPrinter(this);
     }
 
@@ -96,8 +86,8 @@ public class RaisedButton extends Button {
         enableTextColor = typedArray.getColor(R.styleable.RaisedButton_rb_enableTextColor, Color.WHITE);
         enableBackgroundColor = typedArray.getColor(R.styleable.RaisedButton_rb_enableBackgroundColor, Color.LTGRAY);
         rippleRadius = typedArray.getDimension(R.styleable.RaisedButton_rb_rippleRadius, rippleRadius);
-        shadowStoke = typedArray.getDimension(R.styleable.RaisedButton_rb_rippleRadius, shadowStoke);
-        rectRadius = typedArray.getDimension(R.styleable.RaisedButton_rb_rippleRadius, rectRadius);
+        padding = elevation = typedArray.getDimension(R.styleable.RaisedButton_rb_elevation, elevation);
+        rectRadius = typedArray.getDimension(R.styleable.RaisedButton_rb_rectRadius, rectRadius);
         typedArray.recycle();
     }
 
@@ -213,19 +203,18 @@ public class RaisedButton extends Button {
         height = canvas.getHeight();
         width = canvas.getWidth();
 
-        shadowPrinter.onDraw(canvas, rectRadius, padding,focus);
-//        shadowMaker.onDraw(canvas, focus);
+        shadowPrinter.onDraw(canvas, rectRadius, elevation, focus);
 
         rectF.set(0 + padding, 0 + padding, width - padding, height - padding - shadowOffsetY);
 
-//        canvas.drawRoundRect(rectF, rectRadius, rectRadius, backgroundPaint);
+        canvas.drawRoundRect(rectF, rectRadius, rectRadius, backgroundPaint);
 
         canvas.save();
         clipRect.set(padding, padding, width - padding, height - padding);
         clipPath.addRoundRect(clipRect, rectRadius, rectRadius, Path.Direction.CW);
         canvas.clipPath(clipPath);
         canvas.clipRect(rectF);
-//        canvas.drawCircle(x, y, cur_radius, ripplePaint);
+        canvas.drawCircle(x, y, cur_radius, ripplePaint);
         canvas.restore();
 
         super.onDraw(canvas);
@@ -325,7 +314,7 @@ public class RaisedButton extends Button {
                 float[] hsv = new float[3];
                 Color.colorToHSV(backgroundColor, hsv);
                 hsv[2] *= (v * 0.96 / 0.9) > 1 ? 1 : (v * 0.96 / 0.9);
-//                backgroundPaint.setColor(Color.HSVToColor(hsv));
+                backgroundPaint.setColor(Color.HSVToColor(hsv));
                 backgroundPaint.setShadowLayer(shadowRadius + (1.0f - v) * 10 * padding / 2, shadowOffsetX, shadowOffsetY + (1.0f - v) * 10 * padding / 4, Color.argb((int) (255 * Math.abs(v * 2 - 2.3)), Color.red(shadowColor), Color.green(shadowColor), Color.blue(shadowColor)));
                 invalidate();
             }

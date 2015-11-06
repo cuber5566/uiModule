@@ -17,30 +17,20 @@ public class ShadowPrinter {
     private LinearGradient verticalLinearGradient, horizontalLinearGradient;
     private RadialGradient verticalRadialGradient, horizontalRadialGradient;
 
-    private static final float SHADOW_NORMAL = 2 * Resources.getSystem().getDisplayMetrics().density;
-    private static final float SHADOW_PRESS = 4 * Resources.getSystem().getDisplayMetrics().density;
-    private static final float SHADOW_OFFSET = 2 * Resources.getSystem().getDisplayMetrics().density;
-    private static final float PADDING = 8 * Resources.getSystem().getDisplayMetrics().density;
+    private static final float SHADOW_NORMAL = 1 * Resources.getSystem().getDisplayMetrics().density;
 
-    private static final int START_COLOR = Color.argb((int) (255 * 1), 0, 0, 0);
-    private static final int END_COLOR = Color.argb(0, 0, 0, 0);
+    int startColor, midColor, endColor;
+    int width, height;
 
-//    private static final float shadowNormalLR = 1 * Resources.getSystem().getDisplayMetrics().density;
-//    private static final float shadowPressLR = 3 * Resources.getSystem().getDisplayMetrics().density;
-//
-//    private static final float shadowNormalBottom = 2 * Resources.getSystem().getDisplayMetrics().density;
-//    private static final float shadowPressBottom = 4 * Resources.getSystem().getDisplayMetrics().density;
-
-    private int width, height;
-    private float radius, padding, radiusCenter, shadowNormal, shadowPress, shadowOffset;
-    private boolean animationStart;
-
-    int animationDuration = 300;
-//    private float radius;
+    private float radius, elevation, radiusCenter, shadowNormal, shadowPress, shadowOffset;
+    private boolean init, animationStart;
+    private int animationDuration = 300;
+    private int[] colors = new int[3];
+    private float[] positions = new float[3];
+    private float[] start = new float[2], end = new float[2];
 
     private View view;
     private ValueAnimator shadowAnimator;
-    //    private Rect rect = new Rect();
     private RectF rectF = new RectF();
     private Paint centerPaint = new Paint() {
         {
@@ -65,28 +55,55 @@ public class ShadowPrinter {
         return this;
     }
 
-    public void onDraw(Canvas canvas, float r, float p, boolean press) {
+    private void init() {
+        startColor = Color.argb((int) (255 * 0.35), 0, 0, 0);
+        midColor = Color.argb((int) (255 * 0.35), 0, 0, 0);
+        endColor = Color.TRANSPARENT;
 
-        this.radius = r;
-        this.padding = p;
-        shadowNormal = radius + SHADOW_NORMAL;
-        shadowPress = radius + SHADOW_PRESS;
-        radiusCenter = radius + padding;
+        colors[0] = startColor;
+        colors[1] = midColor;
+        colors[2] = endColor;
 
-        if (animationStart != press) {
-            startShadowAnimation(press, radius);
-            animationStart = press;
-        }
+        positions[0] = 0;
+        positions[1] = 1 - elevation / radius;
+        positions[2] = 1;
+
+        start[0] = shadowNormal;
+        start[1] = 0;
+        end[0] = shadowPress;
+        end[1] = elevation / 3;
+
+        verticalLinearGradient = new LinearGradient(0, radiusCenter, 0, radiusCenter - shadowNormal, colors, positions, Shader.TileMode.CLAMP);
+        horizontalLinearGradient = new LinearGradient(width - radiusCenter, 0, width - radiusCenter + shadowNormal, 0, colors, positions, Shader.TileMode.CLAMP);
+        verticalRadialGradient = new RadialGradient(radiusCenter, radiusCenter, shadowNormal, colors, positions, Shader.TileMode.CLAMP);
+        horizontalRadialGradient = new RadialGradient(width - radiusCenter, radiusCenter, shadowNormal, colors, positions, Shader.TileMode.CLAMP);
+    }
+
+    public void onDraw(Canvas canvas, float r, float e, boolean press) {
 
         width = canvas.getWidth();
         height = canvas.getHeight();
+        elevation = e;
+        radius = r + elevation;
 
+        shadowNormal = radius + SHADOW_NORMAL - elevation;
+        shadowPress = radius + elevation * 2 / 3 - elevation;
+        radiusCenter = radius;
+
+        if (!init) {
+            init();
+            init = true;
+        }
+
+        if (animationStart != press) {
+            startShadowAnimation(press);
+            animationStart = press;
+        }
 
         canvas.save();
         canvas.translate(0, shadowOffset);
 
         for (int i = 0; i < 2; i++) {
-
             rectF.set(0, 0, radiusCenter * 2, radiusCenter * 2);
             radiusPaint.setShader(verticalRadialGradient);
             canvas.drawArc(rectF, 180, 90, true, radiusPaint);
@@ -100,7 +117,7 @@ public class ShadowPrinter {
 
         for (int i = 0; i < 2; i++) {
 
-            rectF.set(width - radiusCenter*2, 0, width, radiusCenter*2);
+            rectF.set(width - radiusCenter * 2, 0, width, radiusCenter * 2);
             radiusPaint.setShader(horizontalRadialGradient);
             canvas.drawArc(rectF, 270, 90, true, radiusPaint);
 
@@ -112,18 +129,16 @@ public class ShadowPrinter {
         }
 
         rectF.set(radius, radius, width - radius, height - radius);
-        centerPaint.setColor(START_COLOR);
+        centerPaint.setColor(startColor);
         canvas.drawRect(rectF, centerPaint);
 
         canvas.restore();
+
     }
 
-    private void startShadowAnimation(boolean press, float r) {
+    private void startShadowAnimation(boolean press) {
 
         if (null != shadowAnimator) shadowAnimator.cancel();
-
-        float[] start = {shadowNormal, 0};
-        float[] end = {shadowPress, SHADOW_OFFSET};
 
         if (press) {
             shadowAnimator = ValueAnimator.ofObject(new FloatArrayEvaluator(), start, end);
@@ -140,16 +155,16 @@ public class ShadowPrinter {
                 shadowOffset = value[1];
 
                 //T
-                verticalLinearGradient = new LinearGradient(0, radiusCenter, 0, radiusCenter - value[0], START_COLOR, END_COLOR, Shader.TileMode.CLAMP);
+                verticalLinearGradient = new LinearGradient(0, radiusCenter, 0, radiusCenter - value[0], colors, positions, Shader.TileMode.CLAMP);
 
                 //R
-                horizontalLinearGradient = new LinearGradient(width - radiusCenter, 0, width - radiusCenter + value[0], 0, START_COLOR, END_COLOR, Shader.TileMode.CLAMP);
+                horizontalLinearGradient = new LinearGradient(width - radiusCenter, 0, width - radiusCenter + value[0], 0, colors, positions, Shader.TileMode.CLAMP);
 
                 //LT
-                verticalRadialGradient = new RadialGradient(radiusCenter, radiusCenter, value[0], START_COLOR, END_COLOR, Shader.TileMode.CLAMP);
+                verticalRadialGradient = new RadialGradient(radiusCenter, radiusCenter, value[0], colors, positions, Shader.TileMode.CLAMP);
 
                 //RT
-                horizontalRadialGradient = new RadialGradient(width - radiusCenter, radiusCenter, value[0], START_COLOR, END_COLOR, Shader.TileMode.CLAMP);
+                horizontalRadialGradient = new RadialGradient(width - radiusCenter, radiusCenter, value[0], colors, positions, Shader.TileMode.CLAMP);
 
                 view.invalidate();
             }

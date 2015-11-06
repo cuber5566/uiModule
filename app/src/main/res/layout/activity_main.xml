@@ -9,10 +9,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@android:color/white"
     android:orientation="vertical"
     tools:context=".MainActivity">
-
 
     <com.ui.uimodule.button.RaisedButton
         android:id="@+id/raisedButton"
@@ -21,9 +19,12 @@
         android:background="@android:color/white"
         android:padding="16dp"
         android:text="RaisedButton"
-        android:textColor="@android:color/white"
-        app:rb_backgroundColor="#FFB907"
-        app:rb_rippleColor="@android:color/black"/>
+        android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_backgroundColor="@android:color/white"
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="16dp"
+        app:rb_elevation="6dp"/>
 
     <com.ui.uimodule.button.RaisedButton
         android:layout_width="wrap_content"
@@ -32,8 +33,11 @@
         android:padding="16dp"
         android:text="RaisedButton"
         android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
         app:rb_backgroundColor="@android:color/white"
-        app:rb_rippleColor="@android:color/black"/>
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="16dp"
+        app:rb_elevation="5dp"/>
 
     <com.ui.uimodule.button.RaisedButton
         android:layout_width="wrap_content"
@@ -42,8 +46,89 @@
         android:padding="16dp"
         android:text="RaisedButton"
         android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
         app:rb_backgroundColor="@android:color/white"
-        app:rb_rippleColor="@android:color/black"/>
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="16dp"
+        app:rb_elevation="4dp"/>
+
+    <com.ui.uimodule.button.RaisedButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:text="RaisedButton"
+        android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_backgroundColor="@android:color/white"
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="8dp"
+        app:rb_elevation="6dp"/>
+
+    <com.ui.uimodule.button.RaisedButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:text="RaisedButton"
+        android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_backgroundColor="@android:color/white"
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="8dp"
+        app:rb_elevation="5dp"/>
+
+    <com.ui.uimodule.button.RaisedButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:text="RaisedButton"
+        android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_backgroundColor="@android:color/white"
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="8dp"
+        app:rb_elevation="4dp"/>
+
+    <com.ui.uimodule.button.RaisedButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:text="RaisedButton"
+        android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_backgroundColor="@android:color/white"
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="4dp"
+        app:rb_elevation="6dp"/>
+
+    <com.ui.uimodule.button.RaisedButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:text="RaisedButton"
+        android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_backgroundColor="@android:color/white"
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="4dp"
+        app:rb_elevation="5dp"/>
+
+    <com.ui.uimodule.button.RaisedButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:text="RaisedButton"
+        android:textColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_backgroundColor="@android:color/white"
+        app:rb_rippleColor="@android:color/black"
+        app:rb_rectRadius="4dp"
+        app:rb_elevation="4dp"/>
 
     <!--<Button-->
     <!--android:layout_width="wrap_content"-->
