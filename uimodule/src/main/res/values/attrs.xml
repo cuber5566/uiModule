@@ -13,6 +13,9 @@
         <attr name="rb_rippleColor" format="color"/>
         <attr name="rb_enableBackgroundColor" format="color"/>
         <attr name="rb_enableTextColor" format="color"/>
+        <attr name="rb_rippleRadius" format="dimension"/>
+        <attr name="rb_shadowStoke" format="dimension"/>
+        <attr name="rb_rectRadius" format="dimension"/>
     </declare-styleable>
 
 </resources>
