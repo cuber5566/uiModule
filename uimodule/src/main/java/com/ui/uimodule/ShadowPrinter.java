@@ -20,7 +20,7 @@ public class ShadowPrinter {
     private static final float SHADOW_NORMAL = 1 * Resources.getSystem().getDisplayMetrics().density;
 
     int startColor, midColor, endColor;
-    int width, height;
+    float width, height;
 
     private float radius, elevation, radiusCenter, shadowNormal, shadowPress, shadowOffset;
     private boolean init, animationStart;

@@ -32,11 +32,6 @@ public class RaisedButton extends Button {
     final int STATE_UP = 1;
     final int STATE_CANCEL = 2;
 
-    int shadowColor = Color.BLACK;
-    float shadowRadius = 2 * Resources.getSystem().getDisplayMetrics().density;
-    float shadowOffsetX = 0 * Resources.getSystem().getDisplayMetrics().density;
-    float shadowOffsetY = 0 * Resources.getSystem().getDisplayMetrics().density;
-
     float rippleRadius = 48 * Resources.getSystem().getDisplayMetrics().density;
     float cur_radius;
     float max_radius;
@@ -44,7 +39,6 @@ public class RaisedButton extends Button {
     float padding = 4 * Resources.getSystem().getDisplayMetrics().density;
     float elevation = 4 * Resources.getSystem().getDisplayMetrics().density;
     float rectRadius = 2 * Resources.getSystem().getDisplayMetrics().density;
-    float shadowAlpha = 0.3f;
 
     protected int backgroundColor, rippleColor, enableTextColor, enableBackgroundColor;
     private ValueAnimator enableTextColorAnimator, enableBackgroundColorAnimator, enableShadowAnimator, backgroundColorAnimator, rippleColorAnimator, rippleRadiusAnimator, rippleFocusAnimator;
@@ -86,7 +80,8 @@ public class RaisedButton extends Button {
         enableTextColor = typedArray.getColor(R.styleable.RaisedButton_rb_enableTextColor, Color.WHITE);
         enableBackgroundColor = typedArray.getColor(R.styleable.RaisedButton_rb_enableBackgroundColor, Color.LTGRAY);
         rippleRadius = typedArray.getDimension(R.styleable.RaisedButton_rb_rippleRadius, rippleRadius);
-        padding = elevation = typedArray.getDimension(R.styleable.RaisedButton_rb_elevation, elevation);
+        elevation = typedArray.getDimension(R.styleable.RaisedButton_rb_elevation, elevation);
+        padding = elevation + 0.5f * Resources.getSystem().getDisplayMetrics().density;
         rectRadius = typedArray.getDimension(R.styleable.RaisedButton_rb_rectRadius, rectRadius);
         typedArray.recycle();
     }
@@ -102,7 +97,6 @@ public class RaisedButton extends Button {
             {
                 setAntiAlias(true);
                 setStyle(Style.FILL);
-                setShadowLayer(shadowRadius, shadowOffsetX, shadowOffsetY, Color.argb((int) (255 * shadowAlpha), Color.red(shadowColor), Color.green(shadowColor), Color.blue(shadowColor)));
                 setColor(backgroundColor);
             }
         };
@@ -148,44 +142,37 @@ public class RaisedButton extends Button {
         x = event.getX();
         y = event.getY();
 
-        if (!isClicked)
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    focus = true;
-//                    changeBackgroundColor(true);
-                    changeRippleColor(true);
-                    startRippleRadiusFocus(true);
-                    changeRippleRadius(STATE_DOWN);
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                focus = true;
+                changeBackgroundColor(true);
+                changeRippleColor(true);
+                startRippleRadiusFocus(true);
+                changeRippleRadius(STATE_DOWN);
+                break;
 
-                    break;
-                case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_MOVE:
+                invalidate();
+                break;
 
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                isClicked = true;
+                start_radius = cur_radius;
+                focus = false;
+                changeBackgroundColor(false);
+                startRippleRadiusFocus(false);
+                changeRippleColor(false);
+                if (0 < x && x < width && 0 < y && y < height) {
+                    changeRippleRadius(STATE_UP);
+                    postDelayed(clickRunnable, ANIMATION_DURATION_UP - 200);
+                } else {
+                    changeRippleRadius(STATE_CANCEL);
+                    isClicked = false;
                     invalidate();
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-
-                    isClicked = true;
-                    start_radius = cur_radius;
-                    focus = false;
-//                    changeBackgroundColor(false);
-                    startRippleRadiusFocus(false);
-                    changeRippleColor(false);
-
-                    if (0 < x && x < width && 0 < y && y < height) {
-
-                        changeRippleRadius(STATE_UP);
-                        postDelayed(clickRunnable, ANIMATION_DURATION_UP - 200);
-
-                    } else {
-
-                        changeRippleRadius(STATE_CANCEL);
-                        isClicked = false;
-                        invalidate();
-                    }
-                    break;
-            }
+                }
+                break;
+        }
         return true;
     }
 
@@ -205,8 +192,7 @@ public class RaisedButton extends Button {
 
         shadowPrinter.onDraw(canvas, rectRadius, elevation, focus);
 
-        rectF.set(0 + padding, 0 + padding, width - padding, height - padding - shadowOffsetY);
-
+        rectF.set(padding, padding, width - padding, height - padding - 0.5f * Resources.getSystem().getDisplayMetrics().density);
         canvas.drawRoundRect(rectF, rectRadius, rectRadius, backgroundPaint);
 
         canvas.save();
@@ -288,7 +274,6 @@ public class RaisedButton extends Button {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float v = (float) valueAnimator.getAnimatedValue();
-                backgroundPaint.setShadowLayer(shadowRadius * v * 100 / 75, shadowOffsetX, shadowOffsetY, Color.argb((int) (255 * shadowAlpha), Color.red(shadowColor), Color.green(shadowColor), Color.blue(shadowColor)));
                 invalidate();
             }
         });
@@ -302,9 +287,9 @@ public class RaisedButton extends Button {
         if (null != backgroundColorAnimator) backgroundColorAnimator.cancel();
 
         if (focus) {
-            backgroundColorAnimator = ValueAnimator.ofFloat(1.0f, 0.90f);
+            backgroundColorAnimator = ValueAnimator.ofFloat(1.0f, 0.95f);
         } else {
-            backgroundColorAnimator = ValueAnimator.ofFloat(0.90f, 1.0f);
+            backgroundColorAnimator = ValueAnimator.ofFloat(0.95f, 1.0f);
         }
 
         backgroundColorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -313,9 +298,8 @@ public class RaisedButton extends Button {
                 float v = (float) valueAnimator.getAnimatedValue();
                 float[] hsv = new float[3];
                 Color.colorToHSV(backgroundColor, hsv);
-                hsv[2] *= (v * 0.96 / 0.9) > 1 ? 1 : (v * 0.96 / 0.9);
+                hsv[2] *= v;
                 backgroundPaint.setColor(Color.HSVToColor(hsv));
-                backgroundPaint.setShadowLayer(shadowRadius + (1.0f - v) * 10 * padding / 2, shadowOffsetX, shadowOffsetY + (1.0f - v) * 10 * padding / 4, Color.argb((int) (255 * Math.abs(v * 2 - 2.3)), Color.red(shadowColor), Color.green(shadowColor), Color.blue(shadowColor)));
                 invalidate();
             }
         });
