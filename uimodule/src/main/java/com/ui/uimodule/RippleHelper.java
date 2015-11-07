@@ -62,12 +62,12 @@ public class RippleHelper {
         return this;
     }
 
-    public void onTouch(int motionEvent, float touchX, float touchY){
+    public void onTouch(MotionEvent event){
 
-        x = touchX;
-        y = touchY;
+        x = event.getX();
+        y = event.getY();
 
-        switch (motionEvent) {
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 changeRippleColor(true);
                 startRippleRadiusFocus(true);

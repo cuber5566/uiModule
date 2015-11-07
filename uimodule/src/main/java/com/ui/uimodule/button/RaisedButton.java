@@ -133,7 +133,7 @@ public class RaisedButton extends Button {
 
         x = event.getX();
         y = event.getY();
-        rippleHelper.onTouch(event.getAction(), x, y);
+        rippleHelper.onTouch(event);
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
