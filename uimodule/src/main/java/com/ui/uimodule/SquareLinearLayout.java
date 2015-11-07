@@ -27,8 +27,8 @@ public class SquareLinearLayout extends LinearLayout {
     private void setAttributes(Context context, AttributeSet attrs, int defStyleAttr) {
 
         final TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareLayout, defStyleAttr, 0);
-        widthWeight = typedArray.getFloat(R.styleable.SquareLayout_widthWeight, 1);
-        heightWeight = typedArray.getFloat(R.styleable.SquareLayout_heightWeight, 1);
+        widthWeight = typedArray.getFloat(R.styleable.SquareLayout_sl_widthWeight, 1);
+        heightWeight = typedArray.getFloat(R.styleable.SquareLayout_sl_heightWeight, 1);
         typedArray.recycle();
 
     }

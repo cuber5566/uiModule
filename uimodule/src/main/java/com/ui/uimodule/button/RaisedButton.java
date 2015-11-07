@@ -8,45 +8,38 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.CycleInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 
 import com.ui.uimodule.R;
-import com.ui.uimodule.ShadowPrinter;
+import com.ui.uimodule.RippleHelper;
+import com.ui.uimodule.ShadowHelper;
 
 public class RaisedButton extends Button {
 
     final int ANIMATION_DURATION_DISABLED = 250;
-    final int ANIMATION_DURATION_FOCUS = 2500;
     final int ANIMATION_DURATION_PRESS = 300;
     final int ANIMATION_DURATION_UP = 350;
 
-    final int STATE_DOWN = 0;
-    final int STATE_UP = 1;
-    final int STATE_CANCEL = 2;
-
     float rippleRadius = 48 * Resources.getSystem().getDisplayMetrics().density;
-    float cur_radius;
-    float max_radius;
 
     float padding = 4 * Resources.getSystem().getDisplayMetrics().density;
     float elevation = 4 * Resources.getSystem().getDisplayMetrics().density;
     float rectRadius = 2 * Resources.getSystem().getDisplayMetrics().density;
 
     protected int backgroundColor, rippleColor, enableTextColor, enableBackgroundColor;
-    private ValueAnimator enableTextColorAnimator, enableBackgroundColorAnimator, enableShadowAnimator, backgroundColorAnimator, rippleColorAnimator, rippleRadiusAnimator, rippleFocusAnimator;
+    private ValueAnimator enableTextColorAnimator, enableBackgroundColorAnimator, backgroundColorAnimator;
 
     Paint ripplePaint, backgroundPaint;
-    Path clipPath = new Path();
-    RectF clipRect = new RectF(), rectF = new RectF();
-    ShadowPrinter shadowPrinter;
+    RectF rectF = new RectF();
+    ShadowHelper shadowHelper;
+    RippleHelper rippleHelper;
 
     float x, y;
     int textColor;
@@ -70,7 +63,8 @@ public class RaisedButton extends Button {
         }
         setAttributes(context, attrs);
         setPaint();
-        shadowPrinter = new ShadowPrinter(this);
+        shadowHelper = new ShadowHelper(this);
+        rippleHelper = new RippleHelper(this);
     }
 
     private void setAttributes(Context context, AttributeSet attrs) {
@@ -110,8 +104,6 @@ public class RaisedButton extends Button {
 
         changeEnableBackgroundColor(enabled);
         changeEnableTextColor(enabled);
-        changeEnableShadowColor(enabled);
-
         super.setEnabled(enabled);
     }
 
@@ -135,20 +127,18 @@ public class RaisedButton extends Button {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (!isEnabled() || isClicked)
             return false;
 
         x = event.getX();
         y = event.getY();
+        rippleHelper.onTouch(event.getAction(), x, y);
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 focus = true;
                 changeBackgroundColor(true);
-                changeRippleColor(true);
-                startRippleRadiusFocus(true);
-                changeRippleRadius(STATE_DOWN);
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -158,16 +148,11 @@ public class RaisedButton extends Button {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 isClicked = true;
-                start_radius = cur_radius;
                 focus = false;
                 changeBackgroundColor(false);
-                startRippleRadiusFocus(false);
-                changeRippleColor(false);
                 if (0 < x && x < width && 0 < y && y < height) {
-                    changeRippleRadius(STATE_UP);
                     postDelayed(clickRunnable, ANIMATION_DURATION_UP - 200);
                 } else {
-                    changeRippleRadius(STATE_CANCEL);
                     isClicked = false;
                     invalidate();
                 }
@@ -185,23 +170,17 @@ public class RaisedButton extends Button {
     };
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
 
         height = canvas.getHeight();
         width = canvas.getWidth();
 
-        shadowPrinter.onDraw(canvas, rectRadius, elevation, focus);
+        shadowHelper.onDraw(canvas, rectRadius, elevation, focus);
 
         rectF.set(padding, padding, width - padding, height - padding - 0.5f * Resources.getSystem().getDisplayMetrics().density);
         canvas.drawRoundRect(rectF, rectRadius, rectRadius, backgroundPaint);
 
-        canvas.save();
-        clipRect.set(padding, padding, width - padding, height - padding);
-        clipPath.addRoundRect(clipRect, rectRadius, rectRadius, Path.Direction.CW);
-        canvas.clipPath(clipPath);
-        canvas.clipRect(rectF);
-        canvas.drawCircle(x, y, cur_radius, ripplePaint);
-        canvas.restore();
+        rippleHelper.onDraw(canvas, rippleRadius, rippleColor, padding, rectRadius);
 
         super.onDraw(canvas);
     }
@@ -244,9 +223,6 @@ public class RaisedButton extends Button {
             enableBackgroundColorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), normalTextColor, disabledTextColor);
         }
 
-        if (null != enableBackgroundColorAnimator)
-            enableBackgroundColorAnimator.cancel();
-
         enableBackgroundColorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -258,28 +234,6 @@ public class RaisedButton extends Button {
         enableBackgroundColorAnimator.setInterpolator(new DecelerateInterpolator());
         enableBackgroundColorAnimator.setDuration(ANIMATION_DURATION_DISABLED);
         enableBackgroundColorAnimator.start();
-    }
-
-    private void changeEnableShadowColor(boolean enabled) {
-
-        if (null != enableShadowAnimator) enableShadowAnimator.cancel();
-
-        if (enabled) {
-            enableShadowAnimator = ValueAnimator.ofFloat(0.0f, 0.75f);
-        } else {
-            enableShadowAnimator = ValueAnimator.ofFloat(0.75f, 0.0f);
-        }
-
-        enableShadowAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float v = (float) valueAnimator.getAnimatedValue();
-                invalidate();
-            }
-        });
-        enableShadowAnimator.setInterpolator(new DecelerateInterpolator());
-        enableShadowAnimator.setDuration(ANIMATION_DURATION_DISABLED);
-        enableShadowAnimator.start();
     }
 
     private void changeBackgroundColor(boolean focus) {
@@ -306,97 +260,6 @@ public class RaisedButton extends Button {
         backgroundColorAnimator.setInterpolator(new DecelerateInterpolator());
         backgroundColorAnimator.setDuration(ANIMATION_DURATION_PRESS);
         backgroundColorAnimator.start();
-    }
-
-    float start_radius;
-
-    private void changeRippleColor(final boolean visible) {
-
-
-        int normalBackgroundColor = Color.argb((int) (255 * 0.0), Color.red(rippleColor), Color.green(rippleColor), Color.blue(rippleColor));
-        int pressBackgroundColor = Color.argb((int) (255 * 0.1), Color.red(rippleColor), Color.green(rippleColor), Color.blue(rippleColor));
-
-        if (null != rippleColorAnimator) rippleColorAnimator.cancel();
-
-        if (visible) {
-            rippleColorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), normalBackgroundColor, pressBackgroundColor);
-            rippleColorAnimator.setDuration(ANIMATION_DURATION_PRESS);
-        } else {
-            rippleColorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), pressBackgroundColor, normalBackgroundColor);
-            rippleColorAnimator.setDuration(ANIMATION_DURATION_UP);
-        }
-
-        rippleColorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                int color = (Integer) valueAnimator.getAnimatedValue();
-                ripplePaint.setColor(color);
-                invalidate();
-            }
-        });
-        rippleColorAnimator.setInterpolator(new DecelerateInterpolator());
-        rippleColorAnimator.start();
-    }
-
-
-    private void changeRippleRadius(int state) {
-        final float max_x = x > width / 2 ? x : width - x;
-        final float max_y = y > width / 2 ? y : width - y;
-        max_radius = (float) Math.sqrt(max_x * max_x + max_y * max_y);
-
-        if (null != rippleRadiusAnimator) rippleRadiusAnimator.cancel();
-
-        switch (state) {
-
-            case STATE_DOWN:
-                rippleRadiusAnimator = ValueAnimator.ofFloat(0, rippleRadius);
-                rippleRadiusAnimator.setDuration(ANIMATION_DURATION_PRESS);
-                break;
-
-            case STATE_UP:
-                rippleRadiusAnimator = ValueAnimator.ofFloat(cur_radius, rippleRadius * 2);
-                rippleRadiusAnimator.setDuration(ANIMATION_DURATION_UP);
-                break;
-
-            default:
-                rippleRadiusAnimator = ValueAnimator.ofFloat(cur_radius, 0);
-                rippleRadiusAnimator.setDuration(ANIMATION_DURATION_UP);
-                break;
-        }
-        rippleRadiusAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float value = (float) valueAnimator.getAnimatedValue();
-
-                cur_radius = value;
-                invalidate();
-            }
-        });
-        rippleRadiusAnimator.setInterpolator(new DecelerateInterpolator());
-        rippleRadiusAnimator.start();
-    }
-
-    private void startRippleRadiusFocus(final boolean start) {
-
-        if (null != rippleFocusAnimator) rippleFocusAnimator.cancel();
-        rippleFocusAnimator = ValueAnimator.ofFloat(0, getResources().getDisplayMetrics().density * 4);
-        rippleFocusAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if (start) {
-                    cur_radius = rippleRadius + (Float) animation.getAnimatedValue();
-                    invalidate();
-                } else {
-                    rippleFocusAnimator.cancel();
-                }
-            }
-        });
-
-        rippleFocusAnimator.setInterpolator(new CycleInterpolator(1));
-        rippleFocusAnimator.setRepeatCount(Integer.MAX_VALUE);
-        rippleFocusAnimator.setStartDelay(ANIMATION_DURATION_PRESS);
-        rippleFocusAnimator.setDuration(ANIMATION_DURATION_FOCUS);
-        rippleFocusAnimator.start();
     }
 
     public void onClick() {

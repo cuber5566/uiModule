@@ -33,9 +33,12 @@
         android:padding="16dp"
         android:text="RaisedButton"
         android:textColor="@android:color/black"
-        app:rb_enableBackgroundColor="@android:color/white"
+
         app:rb_backgroundColor="@android:color/white"
         app:rb_rippleColor="@android:color/black"
+        app:rb_enableBackgroundColor="@android:color/white"
+        app:rb_enableTextColor="@android:color/darker_gray"
+        app:rb_rippleRadius="48dp"
         app:rb_rectRadius="16dp"
         app:rb_elevation="5dp"/>
 
@@ -129,36 +132,5 @@
         app:rb_rippleColor="@android:color/black"
         app:rb_rectRadius="4dp"
         app:rb_elevation="4dp"/>
-
-    <!--<Button-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="button"/>-->
-
-    <!--<TextView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="text"/>-->
-
-    <!--<com.ui.uimodule.RaisedButton-->
-    <!--android:id="@+id/enable"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginLeft="8dp"-->
-    <!--android:padding="16dp"-->
-    <!--android:text="enable"-->
-    <!--app:rb_backgroundColor="@color/colorAccent"-->
-    <!--app:rb_rippleColor="#FFFFFF"/>-->
-
-    <!--<com.ui.uimodule.RaisedButton-->
-    <!--android:id="@+id/animationEnable"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginLeft="8dp"-->
-    <!--android:padding="16dp"-->
-    <!--android:text="animationEnable"-->
-    <!--app:rb_backgroundColor="@color/colorAccent"-->
-    <!--app:rb_rippleColor="#FFFFFF"/>-->
-
 
 </LinearLayout>

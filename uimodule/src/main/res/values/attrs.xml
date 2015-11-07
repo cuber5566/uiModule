@@ -3,8 +3,8 @@
 
     <!-- SquareLayout -->
     <declare-styleable name="SquareLayout">
-        <attr name="widthWeight" format="float"/>
-        <attr name="heightWeight" format="float"/>
+        <attr name="sl_widthWeight" format="float"/>
+        <attr name="sl_heightWeight" format="float"/>
     </declare-styleable>
 
     <!-- Raised Button -->

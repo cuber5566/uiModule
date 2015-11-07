@@ -12,7 +12,7 @@ import android.graphics.Shader;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
-public class ShadowPrinter {
+public class ShadowHelper {
 
     private LinearGradient verticalLinearGradient, horizontalLinearGradient;
     private RadialGradient verticalRadialGradient, horizontalRadialGradient;
@@ -22,7 +22,7 @@ public class ShadowPrinter {
     int startColor, midColor, endColor;
     float width, height;
 
-    private float radius, elevation, radiusCenter, shadowNormal, shadowPress, shadowOffset;
+    private float shadowRadius, elevation, radiusCenter, shadowNormal, shadowPress, shadowOffset;
     private boolean init, animationStart;
     private int animationDuration = 300;
     private int[] colors = new int[3];
@@ -32,7 +32,7 @@ public class ShadowPrinter {
     private View view;
     private ValueAnimator shadowAnimator;
     private RectF rectF = new RectF();
-    private Paint centerPaint = new Paint() {
+    private Paint centerPaint = new Paint(Paint.ANTI_ALIAS_FLAG) {
         {
             setStyle(Style.FILL);
         }
@@ -46,18 +46,24 @@ public class ShadowPrinter {
         }
     };
 
-    public ShadowPrinter(View view) {
+    public ShadowHelper(View view) {
         this.view = view;
     }
 
-    public ShadowPrinter duration(int animationDuration) {
+    public ShadowHelper duration(int animationDuration) {
         this.animationDuration = animationDuration;
         return this;
     }
 
     private void init() {
-        startColor = Color.argb((int) (255 * 0.35), 0, 0, 0);
-        midColor = Color.argb((int) (255 * 0.35), 0, 0, 0);
+
+        start[0] = shadowNormal;
+        start[1] = 0;
+        end[0] = shadowPress;
+        end[1] = elevation / 3;
+
+        startColor = Color.argb((int) (255 * 0.7), 0, 0, 0);
+        midColor = Color.argb((int) (255 * 0.5), 0, 0, 0);
         endColor = Color.TRANSPARENT;
 
         colors[0] = startColor;
@@ -65,13 +71,8 @@ public class ShadowPrinter {
         colors[2] = endColor;
 
         positions[0] = 0;
-        positions[1] = 1 - elevation / radius;
+        positions[1] = 1 - elevation / (shadowRadius - elevation);
         positions[2] = 1;
-
-        start[0] = shadowNormal;
-        start[1] = 0;
-        end[0] = shadowPress;
-        end[1] = elevation / 3;
 
         verticalLinearGradient = new LinearGradient(0, radiusCenter, 0, radiusCenter - shadowNormal, colors, positions, Shader.TileMode.CLAMP);
         horizontalLinearGradient = new LinearGradient(width - radiusCenter, 0, width - radiusCenter + shadowNormal, 0, colors, positions, Shader.TileMode.CLAMP);
@@ -79,16 +80,16 @@ public class ShadowPrinter {
         horizontalRadialGradient = new RadialGradient(width - radiusCenter, radiusCenter, shadowNormal, colors, positions, Shader.TileMode.CLAMP);
     }
 
-    public void onDraw(Canvas canvas, float r, float e, boolean press) {
+    public void onDraw(Canvas canvas, float radius, float e, boolean press) {
 
         width = canvas.getWidth();
         height = canvas.getHeight();
         elevation = e;
-        radius = r + elevation;
+        shadowRadius = radius + elevation;
 
-        shadowNormal = radius + SHADOW_NORMAL - elevation;
-        shadowPress = radius + elevation * 2 / 3 - elevation;
-        radiusCenter = radius;
+        shadowNormal = shadowRadius + SHADOW_NORMAL - elevation;
+        shadowPress = shadowRadius + elevation * 2 / 3 - elevation;
+        radiusCenter = shadowRadius;
 
         if (!init) {
             init();
@@ -121,14 +122,14 @@ public class ShadowPrinter {
             radiusPaint.setShader(horizontalRadialGradient);
             canvas.drawArc(rectF, 270, 90, true, radiusPaint);
 
-            rectF.set(width - radius, radius, width, height - radius);
+            rectF.set(width - shadowRadius, shadowRadius, width, height - shadowRadius);
             linearPaint.setShader(horizontalLinearGradient);
             canvas.drawRect(rectF, linearPaint);
 
             canvas.rotate(180, width / 2, height / 2);
         }
 
-        rectF.set(radius, radius, width - radius, height - radius);
+        rectF.set(shadowRadius, shadowRadius, width - shadowRadius, height - shadowRadius);
         centerPaint.setColor(startColor);
         canvas.drawRect(rectF, centerPaint);
 
