@@ -36,6 +36,6 @@ Material Designer ui support API 21 above
 
 ###RippleHelper
 ```java
-rippleHelper.onTouch(event.getAction(), x, y);
+rippleHelper.onTouch(event);
 rippleHelper.onDraw(canvas, rippleRadius, rippleColor, padding, rectRadius);
 ```
