@@ -62,8 +62,8 @@ public class ShadowHelper {
         end[0] = shadowPress;
         end[1] = elevation / 3;
 
-        startColor = Color.argb((int) (255 * 0.7), 0, 0, 0);
-        midColor = Color.argb((int) (255 * 0.5), 0, 0, 0);
+        startColor = Color.argb((int) (255 *0.7), 0, 0, 0);
+        midColor = Color.argb((int) (255 * 0.4), 0, 0, 0);
         endColor = Color.TRANSPARENT;
 
         colors[0] = startColor;
@@ -71,7 +71,7 @@ public class ShadowHelper {
         colors[2] = endColor;
 
         positions[0] = 0;
-        positions[1] = 1 - elevation / (shadowRadius - elevation);
+        positions[1] = 1 - elevation / (shadowRadius - elevation - shadowOffset);
         positions[2] = 1;
 
         verticalLinearGradient = new LinearGradient(0, radiusCenter, 0, radiusCenter - shadowNormal, colors, positions, Shader.TileMode.CLAMP);
