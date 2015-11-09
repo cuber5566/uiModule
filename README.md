@@ -1,5 +1,5 @@
 # uiModule
-Material Designe support API 21 above
+Material Design support API 21 above
 ![Screenshot](https://github.com/cuber5566/uiModule/blob/master/gif/ripple_shadow.gif)
 
 
